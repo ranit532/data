@@ -19,14 +19,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Simulate Build
+      - name: Simulate a Realistic Build Process
         run: |
-          echo "Building the application..."
-          sleep 5
-          echo "Build complete."
+          echo "--- Starting Build Process $(date) ---" > build.log
+          echo "Step 1/4: Installing dependencies..." | tee -a build.log
+          sleep 2
+          echo "  - Downloading package-a... done." | tee -a build.log
+          echo "  - Downloading package-b... done." | tee -a build.log
+          sleep 1
+          echo "Step 2/4: Running unit tests..." | tee -a build.log
+          sleep 3
+          echo "  - PASSED: test_authentication.py" | tee -a build.log
+          echo "  - PASSED: test_database_connection.py" | tee -a build.log
+          echo "  - FAILED: test_payment_gateway.py" | tee -a build.log
+          echo "  - WARNING: 1 test failed." | tee -a build.log
+          sleep 1
+          echo "Step 3/4: Compiling application assets..." | tee -a build.log
+          sleep 3
+          echo "  - Compiled 155 of 155 files." | tee -a build.log
+          echo "Step 4/4: Creating deployment package..." | tee -a build.log
+          sleep 2
+          echo "--- Build Finished $(date) ---" >> build.log
+          echo "Build process complete. Log file generated."
+
+      - name: Upload Build Log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ github.event.inputs.environment }}
+          path: build.log
 
       - name: Simulate Deploy
         run: |
           echo "Deploying to ${{ github.event.inputs.environment }} environment..."
-          sleep 10
+          sleep 5
           echo "Deployment to ${{ github.event.inputs.environment }} successful!"
